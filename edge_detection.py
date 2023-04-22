@@ -59,7 +59,7 @@ def create_sobel_filter_for_image(image, x_kernel=3, y_kernel=3, threshold_value
     # reducing the threshold increases the edges
     # Apply thresholding to the gradient magnitude image
     _, binary_edge_map = cv2.threshold(grad_mag, threshold_value, 255, cv2.THRESH_BINARY)
-    return binary_edge_map
+    return np.uint8(binary_edge_map)
 
 def create_Mathematical_Morphology_for_image(img):
     # Define a kernel for morphological operations
