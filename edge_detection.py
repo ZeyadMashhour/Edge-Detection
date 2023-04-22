@@ -12,7 +12,7 @@ def create_frames_from_video(video_Path):
         ret, frame = video.read()
 
         if ret:
-            frame = cv2.resize(frame, (500, 500))
+            # frame = cv2.resize(frame, (500, 500))
             frames_list.append(frame)
             binary_edge_map = create_sobel_filter_for_image(image=frame, x_kernel= 3, y_kernel=3, threshold_value=100)
             # laplacian = cv2.Laplacian(frame, cv2.CV_64F)
