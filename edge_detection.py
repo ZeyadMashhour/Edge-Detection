@@ -1,5 +1,12 @@
 import cv2
 import numpy as np
+import scipy.io
+import os
+from matplotlib import pyplot as plt
+
+test_path = r"BSDS500\data/images/test"
+train_path = r"BSDS500\data\images\train"
+validation_path = r"BSDS500\data\images\val"
 
 
 def create_frames_from_video(video_Path):
@@ -69,3 +76,34 @@ def create_Mathematical_Morphology_for_image(img):
     # Apply morphological opening to remove small objects and noise from the edges
     opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel)
     return opening
+
+def read_ground_truth_images(path, subscript=1):
+    """
+    Access the ground truth edge map for the first annotator
+    gt_edge_map = gt_data['Boundaries'][0][0]
+
+    Extract the numpy array from the list
+    gt_edge_map = gt_edge_map.astype(float) / 255.0  # normalize to [0, 1]
+
+    Do something with the ground truth edge map (e.g. evaluate an edge detector)
+    """
+    # Load the ground truth for a specific image
+    gt_path = path
+    gt_data = scipy.io.loadmat(gt_path)['groundTruth'][0]
+
+    return gt_data[0][0][0][subscript]
+
+def show_image(image, cmap = "gray", title = "Input Image"):
+    plt.imshow(image, cmap=cmap)
+    plt.title(title)#, plt.xticks([]), plt.yticks([])
+    plt.show()
+
+def read_images(path):
+    return os.listdir(path)
+
+def read_images_from_path(path):
+    cv_images = []
+    for image in read_images(path):
+        image = cv2.imread(f"{test_path}/{image}")
+        cv_images.append(image)
+    return cv_images
