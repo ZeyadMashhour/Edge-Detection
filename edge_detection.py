@@ -9,7 +9,7 @@ train_path = r"BSDS500\data\images\train"
 validation_path = r"BSDS500\data\images\val"
 
 
-def create_frames_from_video(video_Path, sobel_threshold_value, morphology_theshold_value):
+def create_frames_from_video(video_Path, sobel_threshold_value):
     video = cv2.VideoCapture(video_Path)
     frames_list = []
     filtered_frames_list = []
@@ -67,14 +67,21 @@ def create_sobel_filter_for_image(image, x_kernel=3, y_kernel=3, threshold_value
 
 
 
-def create_Mathematical_Morphology_for_image(img):
+def create_Mathematical_Morphology_for_image(img, x_kernel=1, y_kernel=1):
     # Define a kernel for morphological operations
-    kernel = np.ones((5,5), np.uint8)
-    # Apply morphological closing to fill in small gaps in the edges
-    closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
-    # Apply morphological opening to remove small objects and noise from the edges
-    opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel)
-    return opening
+    kernel = np.ones((x_kernel, y_kernel), np.uint8)
+    
+    # Dilate the edges to fill in small gaps in the edges
+    dilated = cv2.dilate(img, kernel, iterations=1)
+    
+    # Apply morphological closing to remove small objects and noise from the edges
+    closing = cv2.morphologyEx(dilated, cv2.MORPH_CLOSE, kernel)
+    
+    # Erode the edges to restore them to their original thickness
+    eroded = cv2.erode(closing, kernel, iterations=1)
+    
+    return eroded
+
 
 def read_ground_truth_images(path, subscript=1):
     """
