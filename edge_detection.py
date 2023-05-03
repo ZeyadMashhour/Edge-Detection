@@ -9,7 +9,7 @@ train_path = r"BSDS500\data\images\train"
 validation_path = r"BSDS500\data\images\val"
 
 
-def create_frames_from_video(video_Path):
+def create_frames_from_video(video_Path, sobel_threshold_value, morphology_theshold_value):
     video = cv2.VideoCapture(video_Path)
     frames_list = []
     filtered_frames_list = []
@@ -21,13 +21,13 @@ def create_frames_from_video(video_Path):
         if ret:
             frame = cv2.resize(frame, (500, 500))
             frames_list.append(frame)
-            binary_edge_map = create_sobel_filter_for_image(image=frame, x_kernel= 3, y_kernel=3, threshold_value=100)
+            binary_edge_map = create_sobel_filter_for_image(image=frame, x_kernel= 3, y_kernel=3, threshold_value=sobel_threshold_value)
             # laplacian = cv2.Laplacian(frame, cv2.CV_64F)
             # laplacian = np.uint8(laplacian)
             #filtered_frame = cv2.resize(binary_edge_map, (960, 540))
 
-            morphImg = create_Mathematical_Morphology_for_image(frame)
-            morphImg = create_sobel_filter_for_image(image=morphImg, x_kernel= 3, y_kernel=3, threshold_value=100)
+            morphImg = create_Mathematical_Morphology_for_image(binary_edge_map)
+            
 
             filtered_frames_list.append(binary_edge_map)
             morph_frames_list.append(morphImg)
@@ -64,6 +64,7 @@ def create_sobel_filter_for_image(image, x_kernel=3, y_kernel=3, threshold_value
     # Apply thresholding to the gradient magnitude image
     _, binary_edge_map = cv2.threshold(grad_mag, threshold_value, 255, cv2.THRESH_BINARY)
     return np.uint8(binary_edge_map)
+
 
 
 def create_Mathematical_Morphology_for_image(img):
