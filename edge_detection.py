@@ -3,6 +3,7 @@ import numpy as np  # Import the NumPy library for numerical computations on arr
 import scipy.io  # Import the SciPy library for scientific computing and file input/output
 import os  # Import the OS module for interacting with the operating system
 from matplotlib import pyplot as plt  # Import the Pyplot module from the Matplotlib library for data visualization
+from itertools import product
 
 
 test_path = r"BSDS500\data/images/test"  # Define the path to the test images directory
@@ -141,3 +142,51 @@ def read_images_from_path(path):
         image = cv2.imread(f"{test_path}/{image}")  # Read the image file using OpenCV
         cv_images.append(image)  # Append the image to the list of images
     return cv_images  # Return the list of OpenCV images
+
+
+def calculate_mse(image1, image2):
+    """Calculate the Mean Squared Error (MSE) between two images."""
+    if len(image1.shape) == 3 and image1.shape[-1] == 3:
+        image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+    if len(image2.shape) == 3 and image2.shape[-1] == 3:
+        image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
+    mse = np.mean((image1 - image2)**2)
+    return mse
+
+def optimize_parameters_ssim(img_true, img_pred):
+    # Define the range of values to test for ksize and threshold
+    ksize_range = [3, 5, 7]
+    threshold_range = [0,10,20,30,25,50,75, 100,125, 150,175,200,225,255]
+
+    # Generate all combinations of ksize and threshold values
+    param_combinations = product(ksize_range, threshold_range)
+
+    # Evaluate the edge detection algorithm with each parameter combination
+    results = {}
+    for ksize, threshold in param_combinations:
+        edges = perform_edge_detection(img_pred, ksize=ksize, threshold=threshold)
+        mse = ssim(img_true, edges, multichannel=True, data_range=predicted_image.max() - predicted_image.min())
+        results[(ksize, threshold)] = mse
+
+    # Select the best parameter combination based on the evaluation score
+    best_params = max(results, key=results.get)
+    return best_params
+
+def optimize_parameters_mse(img_true, img_pred):
+    # Define the range of values to test for ksize and threshold
+    ksize_range = [3, 5, 7]
+    threshold_range = [0,10,20,30,25,50,75, 100,125, 150,175,200,225,255]
+
+    # Generate all combinations of ksize and threshold values
+    param_combinations = product(ksize_range, threshold_range)
+
+    # Evaluate the edge detection algorithm with each parameter combination
+    results = {}
+    for ksize, threshold in param_combinations:
+        edges = perform_edge_detection(img_pred, ksize=ksize, threshold=threshold)
+        mse = calculate_mse(img_true, edges)
+        results[(ksize, threshold)] = mse
+
+    # Select the best parameter combination based on the evaluation score
+    best_params = min(results, key=results.get)
+    return best_params
